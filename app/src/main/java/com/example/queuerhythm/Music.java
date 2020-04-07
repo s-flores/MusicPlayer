@@ -5,6 +5,7 @@ public class Music {
     private String artist;
     private int track;
 
+
     public Music(String title, String artist, int track) {
         this.title = title;
         this.artist = artist;

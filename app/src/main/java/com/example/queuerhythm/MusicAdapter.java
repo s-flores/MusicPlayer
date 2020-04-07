@@ -5,86 +5,91 @@ import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MusicAdapter extends BaseAdapter {
+public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> {
 
-    private Context context;
-    private int layout;
-    private ArrayList<Music> arrayList;
-    private MediaPlayer mediaPlayer;
+    Context context;
+    //ArrayList<Music> musicList;
+    List<Music> musicList;
+    MediaPlayer mediaPlayer;
+    Boolean active = true;
 
-    public MusicAdapter(Context context, int layout, ArrayList<Music> arrayList) {
+    public MusicAdapter(Context context, ArrayList<Music> arrayList) {
         this.context = context;
-        this.layout = layout;
-        this.arrayList = arrayList;
+        this.musicList = arrayList;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View musicView = LayoutInflater.from(context).inflate(R.layout.music_item, parent,false);
+        return new ViewHolder(musicView);
     }
 
     @Override
-    public int getCount() {
-        return arrayList.size();
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Music music = musicList.get(position);
+        holder.bind(music);
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public int getItemCount() {
+        return musicList.size();
     }
 
-    @Override
-    public long getItemId(int position) {
-        return 0;
-    }
+    public class ViewHolder extends RecyclerView.ViewHolder{
 
-    private class ViewHolder{
-        TextView txtTitle;
-        TextView txtArtist;
-        ImageView ivPlay;
-        ImageView ivStop;
-    }
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        final ViewHolder viewHolder;
-        if(convertView == null) {
-            viewHolder = new ViewHolder();
-            LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
+        TextView tvTitle;
+        TextView tvArtist;
+       // ImageView ivCover;
+       // ImageView ivPlay;
 
-            convertView = layoutInflater.inflate(layout, null);
-            viewHolder.txtArtist = (TextView) convertView.findViewById(R.id.txtArtist);
-            viewHolder.txtTitle = (TextView) convertView.findViewById(R.id.txtTitle);
-            viewHolder.ivPlay = (ImageView) convertView.findViewById(R.id.ivPlay);
-            viewHolder.ivStop = (ImageView) convertView.findViewById(R.id.ivStop);
 
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvTitle = itemView.findViewById(R.id.tvTitle);
+            tvArtist = itemView.findViewById(R.id.tvArtist);
+            //ivCover = itemView.findViewById(R.id.ivCover);
+           // ivPlay = itemView.findViewById(R.id.ivPlay);
+        }
+
+        public void bind(final Music music) {
+            tvTitle.setText(music.getTitle());
+            tvArtist.setText(music.getArtist());
+            //Glide.with(context).load(music.getCoverPath().into(ivCover));
+            //ivCover.setIm
+            tvArtist.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(context, music.getArtist(),Toast.LENGTH_SHORT).show();
+                    if(active){
+                        mediaPlayer = MediaPlayer.create(context, music.getTrack());
+                        active = false;
+                    }
+                    if(mediaPlayer.isPlaying()){
+                        mediaPlayer.pause();
+                        // viewHolder.ivPlay.setImageResource(R.drawable.ic_play);
+                    }else {
+                        mediaPlayer.start();
+                        //viewHolder.ivPlay.setImageResource(R.drawable.ic_pause);
+                    }
+                }
+            });
 
         }
-        final Music music = arrayList.get(position);
 
-        viewHolder.txtArtist.setText(music.getArtist());
-        viewHolder.txtTitle.setText(music.getTitle());
 
-        //play
-        viewHolder.ivPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaPlayer = MediaPlayer.create(context, music.getTrack());
-                mediaPlayer.start();
-            }
-        });
-
-        //stop
-        viewHolder.ivStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaPlayer.stop();
-            }
-        });
-
-        return convertView;
     }
+
 }
